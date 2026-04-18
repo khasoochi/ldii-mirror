@@ -1,0 +1,13 @@
+manuscripts.json
+raw_response.json
+command_*.html
+scrap.py
+*.pyc
+__pycache__/
+.venv/
+venv/
+env/
+.DS_Store
+.git/
+.gitignore
+*.log
