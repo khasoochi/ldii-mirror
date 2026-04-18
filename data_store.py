@@ -1,5 +1,4 @@
 """In-memory data layer for the LD Institute of Indology manuscript browser.
-
 Everything here runs once, at Flask import time. Aggregates are precomputed into
 plain Python dicts so the API handlers are thin lookups, not repeated scans.
 """
