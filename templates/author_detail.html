@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ detail.name }} · Author · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow"><a href="/authors">← all authors</a></div>
+  <h1>{{ detail.name }}</h1>
+  <p class="muted">
+    {{ detail.total | thousands }} manuscripts
+    {% if detail.earliest %}· earliest c. {{ detail.earliest }}{% endif %}
+    {% if detail.latest %}· latest c. {{ detail.latest }}{% endif %}
+  </p>
+</header>
+
+<section class="grid-2 mb-24">
+  <div class="card">
+    <h3>Subjects covered</h3>
+    <div class="flex wrap gap-8 mt-8">
+      {% for s in detail.subject_breakdown %}
+        <a class="chip" href="/browse?author={{ detail.name | urlenc }}&subject={{ s.name | urlenc }}">{{ s.name }} <span class="count">{{ s.count }}</span></a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>Languages</h3>
+    <div class="flex wrap gap-8 mt-8">
+      {% for l in detail.language_breakdown %}
+        <a class="chip" href="/browse?author={{ detail.name | urlenc }}&language={{ l.name | urlenc }}">{{ l.name }} <span class="count">{{ l.count }}</span></a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>All works</h2>
+  <div class="table-wrap">
+    <table class="ms">
+      <thead><tr><th>#</th><th>Title</th><th>Subject</th><th>Language</th><th>Year</th><th>Condition</th><th>Commentator</th></tr></thead>
+      <tbody>
+        {% for r in detail.rows %}
+        <tr>
+          <td class="num tabular">{{ r.manuscript_number }}</td>
+          <td><a class="title-link" href="/manuscript/{{ r.manuscript_number }}">{{ r.title or '—' }}</a></td>
+          <td>{% if r.subject %}<a class="chip" href="/subjects/{{ r.subject | urlenc }}">{{ r.subject }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{% if r.language %}<a class="chip" href="/languages/{{ r.language | urlenc }}">{{ r.language }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="tabular">{{ r.year_of_writing or '—' }}</td>
+          <td>{{ r.condition or '—' }}</td>
+          <td>{{ r.commentator or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

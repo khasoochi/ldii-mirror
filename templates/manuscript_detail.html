@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ row.title or 'Manuscript' }} · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow"><a href="/browse">← back to browse</a> · #{{ row.manuscript_number }}</div>
+  <h1>{{ row.title or 'Untitled' }}</h1>
+  <p class="muted">
+    {% if row.author %}by <a href="/authors/{{ row.author | urlenc }}">{{ row.author }}</a>{% else %}Anonymous{% endif %}
+    {% if row.year_of_writing %} · {{ row.year_of_writing }}{% endif %}
+    {% if row.language %} · {{ row.language }}{% endif %}
+  </p>
+</header>
+
+<section class="grid-2 mb-24">
+  <div class="card">
+    <h3>Details</h3>
+    <dl class="dd-grid mt-8">
+      <dt>Manuscript #</dt><dd class="tabular">{{ row.manuscript_number }}</dd>
+      <dt>Title</dt><dd>{{ row.title or '—' }}</dd>
+      <dt>Author</dt>
+        <dd>{% if row.author %}<a class="chip" href="/authors/{{ row.author | urlenc }}">{{ row.author }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd>
+      <dt>Language</dt>
+        <dd>{% if row.language %}<a class="chip" href="/languages/{{ row.language | urlenc }}">{{ row.language }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd>
+      <dt>Subject</dt>
+        <dd>{% if row.subject %}<a class="chip" href="/subjects/{{ row.subject | urlenc }}">{{ row.subject }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd>
+      <dt>Year of writing</dt><dd>{{ row.year_of_writing or '—' }}{% if row.century %} <span class="muted">({{ row.century | ordinal_century }})</span>{% endif %}</dd>
+      <dt>Condition</dt><dd>{{ row.condition or '—' }}</dd>
+      <dt>Folios</dt><dd class="tabular">{{ row.folio_number or '—' }}</dd>
+      <dt>Commentator</dt><dd>{{ row.commentator or '—' }}</dd>
+      <dt>Commentary</dt><dd>{{ row.commentary_name or '—' }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3>Source</h3>
+    <p class="muted">View this manuscript on the LD Institute of Indology catalogue:</p>
+    {% if row.title_url %}
+      <a class="btn primary" target="_blank" rel="noopener" href="{{ row.title_url }}">Open on ldindology.org ↗</a>
+    {% else %}
+      <span class="muted">No external link available.</span>
+    {% endif %}
+    <hr>
+    <h3>Share</h3>
+    <code style="display:block; padding:10px; background:var(--bg-soft); border-radius:8px; font-size:.85rem; overflow:auto;">{{ request.url }}</code>
+  </div>
+</section>
+
+{% if similar %}
+<section>
+  <h2>Related manuscripts</h2>
+  <div class="similar-strip">
+    {% for r in similar %}
+      <a class="mini-card" href="/manuscript/{{ r.manuscript_number }}">
+        <div class="mini-title">{{ r.title or '—' }}</div>
+        <div class="muted" style="font-size:.88rem;">{{ r.author or '—' }}</div>
+        <div class="mt-8 flex wrap gap-8">
+          {% if r.year_of_writing %}<span class="badge">{{ r.year_of_writing }}</span>{% endif %}
+          {% if r.subject %}<span class="chip">{{ r.subject }}</span>{% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

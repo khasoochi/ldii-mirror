@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ detail.name }} · Subject · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow"><a href="/subjects">← all subjects</a></div>
+  <h1>{{ detail.name }}</h1>
+  <p class="muted">{{ detail.total | thousands }} manuscripts in this subject.</p>
+  <div class="flex gap-8 wrap mt-8">
+    <a class="btn" href="/browse?subject={{ detail.name | urlenc }}">Open in Browse →</a>
+  </div>
+</header>
+
+<section class="grid-2 mb-24">
+  <div class="card">
+    <h3>Languages</h3>
+    <div class="flex wrap gap-8 mt-8">
+      {% for l in detail.language_breakdown %}
+        <a class="chip" href="/browse?subject={{ detail.name | urlenc }}&language={{ l.name | urlenc }}">{{ l.name }} <span class="count">{{ l.count }}</span></a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>Centuries</h3>
+    <div class="flex wrap gap-8 mt-8">
+      {% for c in detail.century_breakdown %}
+        <a class="chip" href="/browse?subject={{ detail.name | urlenc }}&century={{ c.century }}">{{ c.century | ordinal_century }} <span class="count">{{ c.count }}</span></a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Manuscripts</h2>
+  <div class="table-wrap">
+    <table class="ms">
+      <thead><tr><th>#</th><th>Title</th><th>Author</th><th>Language</th><th>Year</th><th>Condition</th></tr></thead>
+      <tbody>
+        {% for r in detail.rows %}
+        <tr>
+          <td class="num tabular">{{ r.manuscript_number }}</td>
+          <td><a class="title-link" href="/manuscript/{{ r.manuscript_number }}">{{ r.title or '—' }}</a></td>
+          <td>{% if r.author %}<a class="chip" href="/authors/{{ r.author | urlenc }}">{{ r.author }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{% if r.language %}<a class="chip" href="/languages/{{ r.language | urlenc }}">{{ r.language }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="tabular">{{ r.year_of_writing or '—' }}</td>
+          <td>{{ r.condition or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if detail.pages > 1 %}
+  {% set start = [1, detail.page - 3] | max %}
+  {% set end = [detail.pages, detail.page + 3] | min %}
+  <div class="pagination">
+    {% if detail.page > 1 %}<a class="page" href="?page={{ detail.page - 1 }}">‹</a>{% endif %}
+    {% if start > 1 %}<a class="page" href="?page=1">1</a>{% if start > 2 %}<span class="ellip">…</span>{% endif %}{% endif %}
+    {% for p in range(start, end + 1) %}
+      {% if p == detail.page %}<span class="page on">{{ p }}</span>
+      {% else %}<a class="page" href="?page={{ p }}">{{ p }}</a>{% endif %}
+    {% endfor %}
+    {% if end < detail.pages %}{% if end < detail.pages - 1 %}<span class="ellip">…</span>{% endif %}<a class="page" href="?page={{ detail.pages }}">{{ detail.pages }}</a>{% endif %}
+    {% if detail.page < detail.pages %}<a class="page" href="?page={{ detail.page + 1 }}">›</a>{% endif %}
+    <span class="info">Page {{ detail.page }} of {{ detail.pages }}</span>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

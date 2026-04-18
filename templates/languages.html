@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Languages · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow">index</div>
+  <h1>Languages</h1>
+  <p class="muted">{{ languages | length }} languages and scripts represented in the catalogue.</p>
+</header>
+
+<div class="grid-auto-260">
+  {% for l in languages %}
+    <a class="agg-card" href="/languages/{{ l.name | urlenc }}">
+      <div>
+        <div class="name">{{ l.name or '—' }}</div>
+        <div class="meta">Top subject: {{ l.top_subject or '—' }}</div>
+      </div>
+      <span class="count-pill">{{ l.count | thousands }}</span>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

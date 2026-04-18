@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Browse manuscripts · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow">catalogue</div>
+  <h1>Browse manuscripts</h1>
+  <p class="muted">Search, filter, sort, and export across the full catalogue of the LD Institute of Indology.</p>
+</header>
+
+<div class="browse-layout">
+
+  <aside class="filters card" aria-label="Filters">
+    <div class="flex between mb-16"><h3 style="margin:0;">Filters</h3><button class="btn ghost" id="clear-filters" title="Clear filters">Clear</button></div>
+
+    <div class="group">
+      <label class="block" for="f-language">Language</label>
+      <select id="f-language"><option value="">All languages</option>
+        {% for l in facets.languages %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="group">
+      <label class="block" for="f-subject">Subject</label>
+      <select id="f-subject"><option value="">All subjects</option>
+        {% for s in facets.subjects %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="group">
+      <label class="block" for="f-condition">Condition</label>
+      <select id="f-condition"><option value="">All conditions</option>
+        {% for c in facets.conditions %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="group">
+      <label class="block" for="f-century">Century</label>
+      <select id="f-century"><option value="">All centuries</option>
+        {% for c in facets.centuries %}<option value="{{ c }}">{{ c | ordinal_century }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="group">
+      <label class="block">Year range</label>
+      <div class="range">
+        <input type="number" id="f-year-from" placeholder="from" />
+        <span class="muted">—</span>
+        <input type="number" id="f-year-to" placeholder="to" />
+      </div>
+    </div>
+    <div class="group">
+      <label class="checkline"><input type="checkbox" id="f-commentary"> Has commentary</label>
+    </div>
+    <div class="group">
+      <label class="block" for="f-author">Author (exact)</label>
+      <input type="text" id="f-author" list="author-list" placeholder="Start typing…">
+      <datalist id="author-list">
+        {% for a in facets.authors[:2000] %}<option value="{{ a }}">{% endfor %}
+      </datalist>
+      <small class="muted">See the <a href="/authors">authors index</a> for the full list.</small>
+    </div>
+  </aside>
+
+  <section>
+    <div class="toolbar">
+      <div class="left">
+        <div class="search-bar" style="flex:1;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="q" type="search" placeholder="Search title, author, commentator… ( / )" autocomplete="off">
+        </div>
+      </div>
+      <div class="right">
+        <div class="dropdown" id="cols-dd">
+          <button class="btn" id="cols-btn">Columns ▾</button>
+          <div class="dropdown-menu">
+            <label><input type="checkbox" data-col="manuscript_number" checked> #</label>
+            <label><input type="checkbox" data-col="title" checked disabled> Title</label>
+            <label><input type="checkbox" data-col="author" checked> Author</label>
+            <label><input type="checkbox" data-col="subject" checked> Subject</label>
+            <label><input type="checkbox" data-col="language" checked> Language</label>
+            <label><input type="checkbox" data-col="year_of_writing" checked> Year</label>
+            <label><input type="checkbox" data-col="condition"> Condition</label>
+            <label><input type="checkbox" data-col="folio_number"> Folios</label>
+            <label><input type="checkbox" data-col="commentator"> Commentator</label>
+            <label><input type="checkbox" data-col="commentary_name"> Commentary</label>
+          </div>
+        </div>
+        <select id="per-page" title="Rows per page">
+          <option>25</option><option selected>50</option><option>100</option><option>200</option>
+        </select>
+        <a class="btn" id="export-btn" href="/api/export">⇩ CSV</a>
+      </div>
+    </div>
+
+    <div id="result-meta" class="muted mb-8 tabular" aria-live="polite">Loading…</div>
+
+    <div class="table-wrap">
+      <table class="ms" id="ms-table">
+        <thead>
+          <tr>
+            <th data-col="manuscript_number" data-sort="manuscript_number">#</th>
+            <th data-col="title" data-sort="title">Title</th>
+            <th data-col="author" data-sort="author">Author</th>
+            <th data-col="subject" data-sort="subject">Subject</th>
+            <th data-col="language" data-sort="language">Language</th>
+            <th data-col="year_of_writing" data-sort="year_int">Year</th>
+            <th data-col="condition" data-sort="condition" class="hidden-col">Condition</th>
+            <th data-col="folio_number" data-sort="folio_number" class="hidden-col">Folios</th>
+            <th data-col="commentator" data-sort="commentator" class="hidden-col">Commentator</th>
+            <th data-col="commentary_name" data-sort="commentary_name" class="hidden-col">Commentary</th>
+          </tr>
+        </thead>
+        <tbody id="ms-body"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/browse.js') }}" defer></script>
+{% endblock %}

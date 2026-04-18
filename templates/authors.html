@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Authors · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow">index</div>
+  <h1>Authors</h1>
+  <p class="muted">Every named author in the catalogue, with the number of manuscripts attributed to them. Click through to see their full body of work.</p>
+</header>
+
+<div class="toolbar">
+  <div class="left">
+    <div class="search-bar" style="flex:1;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Search authors…">
+    </div>
+  </div>
+  <div class="right">
+    <select id="sort">
+      <option value="count">Most works</option>
+      <option value="name">Name A→Z</option>
+    </select>
+    <select id="order">
+      <option value="desc">Descending</option>
+      <option value="asc">Ascending</option>
+    </select>
+  </div>
+</div>
+
+<div id="meta" class="muted mb-8 tabular">Loading…</div>
+<div id="grid" class="grid-auto-320"></div>
+<div class="pagination" id="pagination"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const state = { q: "", sort: "count", order: "desc", page: 1, per_page: 60 };
+  const qEl = document.getElementById("q");
+  const sortEl = document.getElementById("sort");
+  const orderEl = document.getElementById("order");
+  const grid = document.getElementById("grid");
+  const meta = document.getElementById("meta");
+  const pag = document.getElementById("pagination");
+
+  function render(data) {
+    meta.textContent = data.total === 0 ? "No authors matched." :
+      `Showing ${LDII.fmt((state.page - 1) * state.per_page + 1)}–${LDII.fmt(Math.min(data.total, state.page * state.per_page))} of ${LDII.fmt(data.total)} authors`;
+    grid.innerHTML = data.rows.map(a => `
+      <a class="agg-card" href="/authors/${encodeURIComponent(a.name)}">
+        <div>
+          <div class="name">${LDII.escapeHtml(a.name)}</div>
+          <div class="meta">${a.top_subject ? 'Most often: ' + LDII.escapeHtml(a.top_subject) : 'Various subjects'}</div>
+        </div>
+        <span class="count-pill">${LDII.fmt(a.count)} works</span>
+      </a>
+    `).join("");
+    // pagination
+    pag.innerHTML = "";
+    if (data.pages <= 1) return;
+    const add = (label, page, active, disabled) => {
+      const b = document.createElement("span");
+      b.className = "page" + (active ? " on" : "");
+      b.textContent = label;
+      if (!active && !disabled) b.addEventListener("click", () => { state.page = page; load(); });
+      if (disabled) b.style.opacity = .4;
+      pag.appendChild(b);
+    };
+    add("‹", Math.max(1, state.page - 1), false, state.page === 1);
+    const start = Math.max(1, state.page - 2), end = Math.min(data.pages, state.page + 2);
+    if (start > 1) add(1, 1, state.page === 1);
+    for (let p = start; p <= end; p++) add(p, p, p === state.page);
+    if (end < data.pages) add(data.pages, data.pages, state.page === data.pages);
+    add("›", Math.min(data.pages, state.page + 1), false, state.page === data.pages);
+  }
+
+  function load() {
+    fetch("/api/authors?" + LDII.buildQuery(state))
+      .then(r => r.json()).then(render);
+  }
+
+  let deb;
+  qEl.addEventListener("input", () => { clearTimeout(deb); deb = setTimeout(() => { state.q = qEl.value.trim(); state.page = 1; load(); }, 200); });
+  sortEl.addEventListener("change", () => { state.sort = sortEl.value; state.page = 1; load(); });
+  orderEl.addEventListener("change", () => { state.order = orderEl.value; state.page = 1; load(); });
+  load();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}LD Institute Manuscripts{% endblock %}</title>
+  <meta name="description" content="Browse and explore manuscripts catalogued by the LD Institute of Indology.">
+
+  <!-- apply saved theme BEFORE first paint to avoid FOUC -->
+  <script>
+    (function () {
+      const d = document.documentElement;
+      const s = {
+        theme: localStorage.getItem("ldii:theme") || "sepia",
+        accent: localStorage.getItem("ldii:accent") || "saffron",
+        font: localStorage.getItem("ldii:font") || "serif",
+        size: localStorage.getItem("ldii:size") || "m",
+        density: localStorage.getItem("ldii:density") || "cozy",
+        lang: localStorage.getItem("ldii:lang") || "en",
+      };
+      d.setAttribute("data-theme", s.theme);
+      d.setAttribute("data-accent", s.accent);
+      d.setAttribute("data-font", s.font);
+      d.setAttribute("data-size", s.size);
+      d.setAttribute("data-density", s.density);
+      d.setAttribute("data-lang", s.lang);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23b0541c'/><text x='50%' y='58%' font-family='Noto Serif Devanagari,serif' font-size='20' text-anchor='middle' fill='white' font-weight='700'>ग्र</text></svg>">
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="shell">
+
+  <header class="nav" role="banner">
+    <a href="/" class="brand" aria-label="Home">
+      <span class="logo" aria-hidden="true">ग्र</span>
+      <span>
+        <span style="display:block; line-height:1.1;">LD Indology</span>
+        <small data-i18n="brand.sub" style="font-size:.72rem; color: var(--fg-dim); font-weight:500;">LD Institute of Indology · Manuscripts</small>
+      </span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      {% set page = request.endpoint %}
+      <a href="/"          data-i18n="nav.home"      class="{{ 'active' if page == 'home' }}">Home</a>
+      <a href="/browse"    data-i18n="nav.browse"    class="{{ 'active' if page == 'browse' }}">Browse</a>
+      <a href="/authors"   data-i18n="nav.authors"   class="{{ 'active' if page in ('authors','author_detail') }}">Authors</a>
+      <a href="/subjects"  data-i18n="nav.subjects"  class="{{ 'active' if page in ('subjects','subject_detail') }}">Subjects</a>
+      <a href="/languages" data-i18n="nav.languages" class="{{ 'active' if page in ('languages','language_detail') }}">Languages</a>
+      <a href="/timeline"  data-i18n="nav.timeline"  class="{{ 'active' if page == 'timeline' }}">Timeline</a>
+    </nav>
+    <div class="actions">
+      <button class="icon-btn" id="settings-btn" title="Settings (?)" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- settings panel -->
+  <aside id="settings-panel" class="settings-panel" role="dialog" aria-label="Settings">
+    <div class="group">
+      <h4 data-i18n="ui.theme">Theme</h4>
+      <div class="pillbar" role="tablist">
+        <button data-set="theme:light"   data-i18n="theme.light">Light</button>
+        <button data-set="theme:dark"    data-i18n="theme.dark">Dark</button>
+        <button data-set="theme:sepia"   data-i18n="theme.sepia">Sepia</button>
+        <button data-set="theme:saffron" data-i18n="theme.saffron">Saffron</button>
+      </div>
+    </div>
+    <div class="group">
+      <h4 data-i18n="ui.accent">Accent</h4>
+      <div class="swatches">
+        <button data-set="accent:saffron"  style="background:#b0541c" aria-label="Saffron"></button>
+        <button data-set="accent:indigo"   style="background:#7c5cff" aria-label="Indigo"></button>
+        <button data-set="accent:emerald"  style="background:#2f9d69" aria-label="Emerald"></button>
+        <button data-set="accent:crimson"  style="background:#c0374a" aria-label="Crimson"></button>
+      </div>
+    </div>
+    <div class="group">
+      <h4 data-i18n="ui.font">Display font</h4>
+      <div class="pillbar">
+        <button data-set="font:sans"  data-i18n="font.sans">Sans</button>
+        <button data-set="font:serif" data-i18n="font.serif">Serif</button>
+        <button data-set="font:tiro"  data-i18n="font.tiro">Tiro</button>
+      </div>
+    </div>
+    <div class="group">
+      <h4 data-i18n="ui.size">Text size</h4>
+      <div class="pillbar">
+        <button data-set="size:s" data-i18n="size.s">S</button>
+        <button data-set="size:m" data-i18n="size.m">M</button>
+        <button data-set="size:l" data-i18n="size.l">L</button>
+      </div>
+    </div>
+    <div class="group">
+      <h4 data-i18n="ui.density">Density</h4>
+      <div class="pillbar">
+        <button data-set="density:compact"  data-i18n="density.compact">Compact</button>
+        <button data-set="density:cozy"     data-i18n="density.cozy">Cozy</button>
+        <button data-set="density:spacious" data-i18n="density.spacious">Spacious</button>
+      </div>
+    </div>
+    <div class="group">
+      <h4 data-i18n="ui.language">UI language</h4>
+      <div class="pillbar">
+        <button data-set="lang:en" data-i18n="lang.en">EN</button>
+        <button data-set="lang:hi" data-i18n="lang.hi">हि</button>
+      </div>
+    </div>
+    <div class="group">
+      <button class="btn ghost" id="settings-reset" data-i18n="reset" style="width:100%;">Reset</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="site">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4 class="footer-h">About this project</h4>
+          <p class="footer-p">
+            An independent, non-commercial research tool for browsing the catalogue of the LD Institute of Indology. Built to help students, scholars, and enthusiasts explore the holdings by topic, author, language, and era.
+          </p>
+        </div>
+        <div>
+          <h4 class="footer-h">Source &amp; credit</h4>
+          <p class="footer-p">
+            All catalogue metadata is compiled from the publicly accessible listing at
+            <a href="https://www.ldindology.org/" target="_blank" rel="noopener">ldindology.org</a>.
+            Full rights to the underlying manuscripts and their descriptions remain with the
+            <a href="https://www.ldindology.org/" target="_blank" rel="noopener">LD Institute of Indology, Ahmedabad</a>.
+          </p>
+        </div>
+        <div>
+          <h4 class="footer-h">Research use only</h4>
+          <p class="footer-p">
+            Presented here strictly for scholarly browsing and academic research. No copyright infringement is intended. If you are a rights holder and would like any entry removed or amended, please reach out and it will be taken down promptly.
+          </p>
+        </div>
+      </div>
+      <hr class="footer-hr">
+      <small class="footer-bottom">
+        Data current as of the date of scraping · <a href="/">Home</a> · <a href="/browse">Browse</a> · <a href="https://www.ldindology.org/" target="_blank" rel="noopener">Original catalogue ↗</a>
+      </small>
+    </div>
+  </footer>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

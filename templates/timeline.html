@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Timeline · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow">across the centuries</div>
+  <h1>Timeline</h1>
+  <p class="muted">How the collection distributes across dated centuries. Click a century to browse its manuscripts.</p>
+</header>
+
+<section class="card chart-card mb-24">
+  <div class="chart-box tall"><canvas id="chart-timeline"></canvas></div>
+</section>
+
+<section>
+  <h2>By century</h2>
+  <div class="grid-auto-260">
+    {% for b in buckets %}
+      <a class="agg-card" href="/browse?century={{ b.century }}">
+        <div>
+          <div class="name">{{ b.century | ordinal_century }}</div>
+          <div class="meta">approx. {{ (b.century - 1) * 100 + 1 }} – {{ b.century * 100 }} CE</div>
+        </div>
+        <span class="count-pill">{{ b.count | thousands }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const wait = setInterval(() => {
+    if (!window.Chart) return;
+    clearInterval(wait);
+    fetch("/api/timeline").then(r => r.json()).then(({rows}) => {
+      const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+      new Chart(document.getElementById("chart-timeline"), {
+        type: "bar",
+        data: {
+          labels: rows.map(r => r.century + "c"),
+          datasets: [{
+            data: rows.map(r => r.count),
+            backgroundColor: css("--accent"),
+            borderRadius: 8,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false },
+            tooltip: { backgroundColor: css("--bg-elev"), titleColor: css("--fg"), bodyColor: css("--fg-soft"), borderColor: css("--border"), borderWidth: 1 } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: css("--fg-dim") } },
+            y: { grid: { color: css("--border") }, ticks: { color: css("--fg-dim") } },
+          },
+          onClick: (_, els) => {
+            if (!els.length) return;
+            window.location.href = "/browse?century=" + rows[els[0].index].century;
+          },
+        },
+      });
+    });
+  }, 30);
+});
+</script>
+{% endblock %}

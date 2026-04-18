@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Subjects · LD Indology{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="eyebrow">index</div>
+  <h1>Subjects</h1>
+  <p class="muted">{{ subjects | length }} śāstric domains and topics covered by the collection.</p>
+</header>
+
+<div class="toolbar">
+  <div class="left">
+    <div class="search-bar" style="flex:1;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Filter subjects…">
+    </div>
+  </div>
+</div>
+
+<div class="grid-auto-260" id="grid">
+  {% for s in subjects %}
+    <a class="agg-card" href="/subjects/{{ s.name | urlenc }}" data-name="{{ s.name }}">
+      <div>
+        <div class="name">{{ s.name or '—' }}</div>
+        <div class="meta">Mostly in {{ s.top_language or '—' }}</div>
+      </div>
+      <span class="count-pill">{{ s.count | thousands }}</span>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const q = document.getElementById("q");
+  const cards = Array.from(document.querySelectorAll("#grid .agg-card"));
+  q.addEventListener("input", () => {
+    const v = q.value.trim().toLowerCase();
+    cards.forEach(c => {
+      const name = (c.getAttribute("data-name") || "").toLowerCase();
+      c.style.display = !v || name.includes(v) ? "" : "none";
+    });
+  });
+})();
+</script>
+{% endblock %}

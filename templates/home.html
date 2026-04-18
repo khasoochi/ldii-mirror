@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}LD Indology Manuscripts — Overview{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <span class="notice-pill"><span class="dot"></span> Non-commercial research tool · catalogue compiled from <a href="https://www.ldindology.org/" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ldindology.org</a></span>
+  <div class="eyebrow">The catalogue at a glance</div>
+  <h1>Explore {{ stats.total_manuscripts | thousands }} manuscripts of the LD Institute of Indology</h1>
+  <p class="lead">
+    A searchable, filterable view of the Institute's hand-written treasures — spanning centuries, languages, authors and śāstric traditions. Dive in by topic, author, era, or just browse the full list.
+  </p>
+  <div class="flex gap-12 wrap">
+    <a class="btn primary" href="/browse">Browse the catalogue →</a>
+    <a class="btn" href="/subjects">Explore by subject</a>
+    <a class="btn ghost" href="/timeline">See the timeline</a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="label">Manuscripts</div>
+      <div class="value" data-count="{{ stats.total_manuscripts }}">0</div>
+      <div class="sub">{{ stats.with_commentary | thousands }} with commentary</div>
+    </div>
+    <div class="stat">
+      <div class="label">Authors</div>
+      <div class="value" data-count="{{ stats.unique_authors }}">0</div>
+      <div class="sub">{{ stats.missing_author | thousands }} anonymous</div>
+    </div>
+    <div class="stat">
+      <div class="label">Subjects</div>
+      <div class="value" data-count="{{ stats.unique_subjects }}">0</div>
+      <div class="sub">śāstric domains covered</div>
+    </div>
+    <div class="stat">
+      <div class="label">Languages</div>
+      <div class="value" data-count="{{ stats.unique_languages }}">0</div>
+      <div class="sub">{{ stats.unique_commentators | thousands }} commentators</div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-24 grid-2">
+  <div class="card chart-card">
+    <div class="flex between"><h3>Languages</h3><a class="chip" href="/languages">See all →</a></div>
+    <div class="chart-box"><canvas id="chart-lang"></canvas></div>
+  </div>
+  <div class="card chart-card">
+    <div class="flex between"><h3>Top subjects</h3><a class="chip" href="/subjects">See all →</a></div>
+    <div class="chart-box"><canvas id="chart-subjects"></canvas></div>
+  </div>
+</section>
+
+<section class="mt-24 grid-2">
+  <div class="card chart-card">
+    <div class="flex between"><h3>Top authors</h3><a class="chip" href="/authors">See all →</a></div>
+    <div class="chart-box"><canvas id="chart-authors"></canvas></div>
+  </div>
+  <div class="card chart-card">
+    <div class="flex between"><h3>Condition</h3><span class="muted">click a bar to filter</span></div>
+    <div class="chart-box"><canvas id="chart-condition"></canvas></div>
+  </div>
+</section>
+
+<section class="mt-24">
+  <div class="card chart-card">
+    <div class="flex between"><h3>Manuscripts across centuries</h3><a class="chip" href="/timeline">Open timeline →</a></div>
+    <div class="chart-box"><canvas id="chart-century"></canvas></div>
+  </div>
+</section>
+
+<section class="mt-24">
+  <div class="flex between mb-16"><h2>Oldest recorded</h2><a class="chip" href="/browse?sort=year_int&order=asc">All, sorted by year →</a></div>
+  <div class="grid-auto-260" id="oldest-strip">
+    {% for r in stats.oldest_manuscripts[:10] %}
+      <a class="mini-card" href="/manuscript/{{ r.manuscript_number }}">
+        <div class="mini-title">{{ r.title }}</div>
+        <div class="muted" style="font-size:.88rem;">{{ r.author or '—' }}</div>
+        <div class="mt-8 flex wrap gap-8">
+          {% if r.year_of_writing %}<span class="badge">{{ r.year_of_writing }}</span>{% endif %}
+          {% if r.language %}<span class="chip">{{ r.language }}</span>{% endif %}
+          {% if r.subject %}<span class="chip">{{ r.subject }}</span>{% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="mt-24">
+  <div class="flex between mb-16"><h2>Random discovery</h2>
+    <button class="btn" id="reshuffle">↻ Shuffle</button>
+  </div>
+  <div class="grid-auto-260" id="random-strip"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script src="{{ url_for('static', filename='js/stats.js') }}" defer></script>
+{% endblock %}

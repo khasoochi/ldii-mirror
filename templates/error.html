@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · LD Indology{% endblock %}
+{% block content %}
+<section class="hero" style="text-align:center;">
+  <div class="eyebrow">Error {{ code }}</div>
+  <h1>{{ message }}</h1>
+  <p class="muted">The page or record you asked for doesn't exist in the catalogue.</p>
+  <div class="flex gap-8" style="justify-content:center;"><a class="btn primary" href="/">← Back home</a><a class="btn" href="/browse">Browse all</a></div>
+</section>
+{% endblock %}
